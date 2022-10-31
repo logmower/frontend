@@ -1,0 +1,42 @@
+apiVersion: skaffold/v3alpha1
+kind: Config
+metadata:
+  name: log-viewer-backend
+
+build:
+  artifacts:
+  - image: harbor.k-space.ee/playground/log-viewer-frontend
+    docker:
+      dockerfile: Dockerfile
+
+deploy:
+  kubectl: {}
+
+manifests:
+  rawYaml:
+     - k8s/staging/deployment.yaml
+
+profiles:
+  - name: dev
+    activation:
+      - command: dev
+    build:
+      artifacts:
+        - image: harbor.k-space.ee/playground/log-viewer-frontend
+          docker:
+            target: dev
+          sync:
+            manual:
+              - src: 'src/**/*.vue'
+                dest: .
+              - src: 'src/**/*.js'
+                dest: .
+              - src: 'src/**/*.css'
+                dest: .
+              - src: 'src/**/*.svg'
+                dest: .
+              - src: 'index.html'
+                dest: .
+    manifests:
+      rawYaml:
+        - k8s/dev/deployment.yaml

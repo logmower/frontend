@@ -1,0 +1,15 @@
+
+div#app {
+  width: 100%;
+  height: 100vh;
+}
+
+.screenshots-drawer {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+}
+
+.ag-theme-material {
+  --ag-value-change-value-highlight-background-color: #f9ff99;
+}
