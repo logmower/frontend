@@ -28,7 +28,6 @@
 import { AgGridVue } from "ag-grid-vue3";
 import "ag-grid-community/styles//ag-grid.css";
 import "ag-grid-community/styles//ag-theme-material.css";
-import ScreenshotCell from "./ScreenshotCell.js";
 import { VCard, VCardText, VCardActions } from 'vuetify/components/VCard'
 import { VDialog } from 'vuetify/components/VDialog'
 import { VBtn } from 'vuetify/components/VBtn'
