@@ -36,6 +36,7 @@ import { VTable } from 'vuetify/components/VTable'
 
 
 export default {
+  name: "ExamineLogModal",
   components: {
     AgGridVue,
     VCard,
@@ -43,8 +44,7 @@ export default {
     VCardActions,
     VBtn,
     VDialog,
-    VTable,
-    ScreenshotCell: ScreenshotCell
+    VTable
   },
   data() {
     return {

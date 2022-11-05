@@ -22,17 +22,14 @@
 import { AgGridVue } from "ag-grid-vue3";
 import "ag-grid-community/styles//ag-grid.css";
 import "ag-grid-community/styles//ag-theme-material.css";
-import ScreenshotCell from "./ScreenshotCell.js";
-import ExamineLogModal from "./ExamineLogModal.vue";
-import ComboboxFilter from "./ComboboxFilter.js";
-
+import ExamineLogModal from "./Modal/ExamineLogModal.vue";
+import ComboboxFilter from "./Filter/ComboboxFilter.js";
 
 export default {
   components: {
     ExamineLogModal,
     AgGridVue,
-    ComboboxFilter,
-    ScreenshotCell: ScreenshotCell
+    ComboboxFilter
   },
   data() {
     return {
