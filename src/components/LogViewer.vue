@@ -70,7 +70,7 @@ export default {
     },
   },
   created() {
-    // TODO: monitor actual URL
+    // TODO: monitor actual URL.
     this.setFilterQuery({})
   },
   methods: {
