@@ -24,6 +24,10 @@ import "ag-grid-community/styles//ag-grid.css";
 import "ag-grid-community/styles//ag-theme-material.css";
 import ExamineLogModal from "./Modal/ExamineLogModal.vue";
 import ComboboxFilter from "./Filter/ComboboxFilter.js";
+import flattenObj from "../helpers/flattenObj";
+import parseEventData from "../helpers/parseEventData";
+import { mapActions } from 'vuex';
+import config from "./Grid/Main/config";
 
 export default {
   components: {
@@ -34,103 +38,123 @@ export default {
   data() {
     return {
       examineLogContent: null,
+      ...config,
       gridApi: null,
       gridColumnApi: null,
-      defaultColDef: {
-        width: 50,
-        initialPinned: true,
-        resizable: true,
-        enableCellChangeFlash: true
-      },
-      currentRowCount: 0,
       comboBoxOptions: {},
-      viewRowCount: 20,
+      es: null,
     }
   },
   computed: {
-    columnDefs() {
-      return [
-        {
-          field: '@timestamp',
-          width: 70,
-          sortable: true
-        },
-        {
-          field: 'kubernetes.namespace',
-          headerName: 'namespace',
-          tooltipValueGetter: (params) => params.value,
-          filter: ComboboxFilter,
-          filterParams: {
-            options: this.comboBoxOptions['kubernetes.namespace'],
-            field: 'kubernetes.namespace',
-          }
-        },
-        {
-          field: 'kubernetes.pod.name',
-          headerName: 'pod',
-          tooltipValueGetter: (params) => params.value,
-          filter: ComboboxFilter,
-          filterParams: {
-            options: this.comboBoxOptions['kubernetes.pod.name'],
-            field: 'kubernetes.pod.name',
-          }
-        },
-        {
-          field: 'kubernetes.container.name',
-          headerName: 'container',
-          tooltipValueGetter: (params) => params.value,
-          filter: ComboboxFilter,
-          filterParams: {
-            options: this.comboBoxOptions['kubernetes.container.name'],
-            field: 'kubernetes.container.name',
-          }
-        },
-        {
-          field: 'message',
-          tooltipValueGetter: (params) => params.value,
-          width: 500,
-        },
-        {
-          field: 'stream',
-        },
-      ];
-    }
+    filterQuery() {
+      return this.$store.state.filterQuery
+    },
+  },
+  watch: {
+    filterQuery() {
+      this.setupStream()
+    },
   },
   created() {
-    this.setupStream()
+    // TODO: monitor actual URL
+    this.setFilterQuery([])
   },
   methods: {
+    ...mapActions({
+      setFilterOptions: 'setFilterOptions',
+      setFilterQuery: 'setFilterQuery',
+    }),
     setupStream() {
-      let es = new EventSource('/events');
+      this.es && this.es.close();
+      let url = new URL('/events', window.location.href);
+      this.filterQuery.map((e) => {
+        url.searchParams.append(e.key, e.value);
+      })
+      let es = new EventSource(url.toString());
       es.onmessage = (e) => this.handleReceiveMessage(e)
       es.addEventListener("filters", (e) => this.handleReceiveFilters(e))
+      this.es = es
     },
     onGridReady(params) {
       this.gridApi = params.api;
       this.gridColumnApi = params.columnApi;
+      this.gridColumnApi.applyColumnState({
+        state: [{
+            colId: '@timestamp',
+            sort: 'desc'
+          }]
+      });
+      this.gridApi.addGlobalListener((type, event) => {
+        if (type === 'filterChanged') {
+          let changedColumn = event.columns[0] ? (event.columns[0].colId) : null
+          let query = []
+          let gridColumns = event.columnApi.columnModel.gridColumns
+          gridColumns.map((column) => {
+            // Reset child column filter if parent changed
+            let parentColumn = column?.colDef?.filterParams?.parentColumn
+            if (parentColumn && changedColumn === parentColumn) {
+              let filterInstance = this.gridApi.getFilterInstance(column.colId);
+              column.filterActive = null
+              filterInstance.updateFilter(null)
+              this.gridApi.onFilterChanged();
+            }
+            if (column.filterActive) {
+              query.push({
+                key: column.colId,
+                value: column.filterActive
+              })
+            }
+          })
+          this.setFilterQuery(query)
+        }
+      });
     },
     handleReceiveMessage (event) {
-      const eventData = this.parseEventData(event.data);
+      const eventData = parseEventData(event.data);
       const res = this.gridApi.applyTransaction({
         add: [eventData]
       });
       const rowNode = res.add[0]
       this.gridApi.flashCells({ rowNodes: [rowNode]});
-      this.gridApi.sizeColumnsToFit()
     },
     handleReceiveFilters (event) {
-      this.comboBoxOptions = this.parseEventData(event.data);
-    },
-    parseEventData (eventData) {
-      try {
-        let json = JSON.parse(eventData)
-        if (!json.message) {
-          json.message = JSON.stringify(json.json)
+      let data = parseEventData(event.data);
+      let opts = this.comboBoxOptions
+      for (let k in data) {
+        if (!(k in opts)) {
+          opts[k] = []
         }
-        return json
-      } catch (e) {
-        console.error(e, eventData)
+        // TODO: proper merging
+        if ((data[k].parentKey) || (opts[k].length === 0)) {
+          opts[k].push(data[k])
+        }
       }
+      this.comboBoxOptions = opts
+
+      let correctOptions = {};
+      for (let column in opts) {
+          correctOptions[column] = []
+          let columnDef = this.columnDefs.find((columnDef) => {
+            return columnDef.field === column
+          });
+          let parentColumnName = columnDef?.filterParams?.parentColumn;
+          let possibleColumnOptions = opts[column].filter((k) => {
+            return k.parentKey === parentColumnName
+          })
+          if (possibleColumnOptions.length === 1) {
+            correctOptions[column] = possibleColumnOptions[0].options
+          } else if (possibleColumnOptions.length > 1) {
+            let filterInstance = this.gridApi.getFilterInstance(parentColumnName)
+            possibleColumnOptions.forEach((opt) => {
+              if (filterInstance && (opt.parentValue === filterInstance.filter)) {
+                correctOptions[column] = opt.options
+              }
+            })
+         }
+      }
+      this.gridApi.sizeColumnsToFit()
+
+      this.setFilterOptions(correctOptions)
     },
     openExamineLog (row) {
       const selectedRow = row.data
@@ -152,19 +176,5 @@ export default {
   },
 }
 
-const flattenObj = (ob) => {
-  let result = {};
-  for (const i in ob) {
-    if ((typeof ob[i]) === 'object' && !Array.isArray(ob[i])) {
-      const temp = flattenObj(ob[i]);
-      for (const j in temp) {
-        result[i + '.' + j] = temp[j];
-      }
-    }
-    else {
-      result[i] = ob[i];
-    }
-  }
-  return result;
-};
+
 </script>

@@ -7,7 +7,8 @@ export default {
       Combobox
     },
     template: `<Combobox
-      :options="params.options"
+      :field="params.field"
+      :filter="filter"
       :change-value="updateFilter"
     />`,
     data: function () {

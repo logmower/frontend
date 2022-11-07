@@ -1,8 +1,8 @@
 <template>
   <v-select
-      v-model="filter"
+      v-model="filterValue"
       :options="options"
-      class="ag-custom-component-popup"
+      @open="updateOptions"
   ></v-select>
 </template>
 
@@ -15,19 +15,31 @@ export default {
     vSelect
   },
   props: {
-    options: {
+    field: {
     },
     changeValue: {
+    },
+    filter: {
     }
   },
   data() {
     return {
-      filter: null,
+      options: []
     }
   },
-  watch: {
-    filter(value) {
-      this.changeValue(value)
+  computed: {
+    filterValue: {
+      get() {
+        return this.filter
+      },
+      set(newValue) {
+        this.changeValue(newValue)
+      }
+    }
+  },
+  methods: {
+    updateOptions() {
+      this.options = this.$store.state.filterOptions[this.field] ?? []
     }
   }
 }
