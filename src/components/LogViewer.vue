@@ -1,7 +1,15 @@
 <template>
-  <div style="height: 100%; width: 100%">
+  <div style="height: 100%; width: 100%; text-align: right">
+      <v-btn
+          color="blue-grey"
+          class="ma-2"
+          :prepend-icon="streaming ? 'mdi-pause' :'mdi-play'"
+          @click="toggleFilterQueryStreaming"
+      >
+        Stream new lines
+      </v-btn>
   <ag-grid-vue
-      style="width: 100%; height: 100%;"
+      style="width: 100%; height: calc(100% - 52px);"
       class="ag-theme-material"
       @grid-ready="onGridReady"
       :defaultColDef="defaultColDef"
@@ -22,6 +30,7 @@
 import { AgGridVue } from "ag-grid-vue3";
 import "ag-grid-community/styles//ag-grid.css";
 import "ag-grid-community/styles//ag-theme-material.css";
+import { VBtn } from 'vuetify/components/VBtn'
 import ExamineLogModal from "./Modal/ExamineLogModal.vue";
 import ComboboxFilter from "./Filter/ComboboxFilter.js";
 import flattenObj from "../helpers/flattenObj";
@@ -33,7 +42,8 @@ export default {
   components: {
     ExamineLogModal,
     AgGridVue,
-    ComboboxFilter
+    ComboboxFilter,
+    VBtn
   },
   data() {
     return {
@@ -46,12 +56,16 @@ export default {
     }
   },
   computed: {
-    filterQuery() {
-      return this.$store.state.filterQuery
-    },
+    ...mapGetters([
+      'filterQuery',
+      'streaming',
+    ]),
   },
   watch: {
     filterQuery() {
+      this.setupStream()
+    },
+    streaming() {
       this.setupStream()
     },
   },
@@ -63,6 +77,7 @@ export default {
     ...mapActions({
       setFilterOptions: 'setFilterOptions',
       setFilterQuery: 'setFilterQuery',
+      toggleFilterQueryStreaming: 'toggleFilterQueryStreaming',
     }),
     setupStream() {
       this.es && this.es.close();
@@ -103,6 +118,7 @@ export default {
               query[column.colId] = column.filterActive
             }
           })
+          query['streaming'] = this.streaming
           this.setFilterQuery(query)
         }
       });
