@@ -3,7 +3,12 @@ import { createStore } from "vuex"
 const store = createStore({
   state: {
     filterOptions: {},
-    filterQuery: []
+    filterQuery: {}
+  },
+  getters: {
+    filterQuery (state) {
+      return state.filterQuery
+    }
   },
   actions: {
     setFilterOptions(context, payload) {

@@ -26,7 +26,7 @@ import ExamineLogModal from "./Modal/ExamineLogModal.vue";
 import ComboboxFilter from "./Filter/ComboboxFilter.js";
 import flattenObj from "../helpers/flattenObj";
 import parseEventData from "../helpers/parseEventData";
-import { mapActions } from 'vuex';
+import {mapActions, mapGetters} from 'vuex';
 import config from "./Grid/Main/config";
 
 export default {
@@ -57,7 +57,7 @@ export default {
   },
   created() {
     // TODO: monitor actual URL
-    this.setFilterQuery([])
+    this.setFilterQuery({})
   },
   methods: {
     ...mapActions({
@@ -67,9 +67,9 @@ export default {
     setupStream() {
       this.es && this.es.close();
       let url = new URL('/events', window.location.href);
-      this.filterQuery.map((e) => {
-        url.searchParams.append(e.key, e.value);
-      })
+      for (const key in this.filterQuery) {
+        url.searchParams.append(key, this.filterQuery[key]);
+      }
       let es = new EventSource(url.toString());
       es.onmessage = (e) => this.handleReceiveMessage(e)
       es.addEventListener("filters", (e) => this.handleReceiveFilters(e))
@@ -88,7 +88,7 @@ export default {
       this.gridApi.addGlobalListener((type, event) => {
         if (type === 'filterChanged') {
           let changedColumn = event.columns[0] ? (event.columns[0].colId) : null
-          let query = []
+          let query = {}
           let gridColumns = event.columnApi.columnModel.gridColumns
           gridColumns.map((column) => {
             // Reset child column filter if parent changed
@@ -100,10 +100,7 @@ export default {
               this.gridApi.onFilterChanged();
             }
             if (column.filterActive) {
-              query.push({
-                key: column.colId,
-                value: column.filterActive
-              })
+              query[column.colId] = column.filterActive
             }
           })
           this.setFilterQuery(query)
