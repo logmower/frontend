@@ -10,7 +10,7 @@ const config = {
     columnDefs: [
         {
             field: '@timestamp',
-            width: 70,
+            width: 120,
             sortable: true
         },
         {
