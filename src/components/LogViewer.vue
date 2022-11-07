@@ -73,6 +73,7 @@ export default {
       let es = new EventSource(url.toString());
       es.onmessage = (e) => this.handleReceiveMessage(e)
       es.addEventListener("filters", (e) => this.handleReceiveFilters(e))
+      es.addEventListener("timeout", (e) => this.handleReceiveTimeout(e))
       this.es = es
     },
     onGridReady(params) {
@@ -155,6 +156,12 @@ export default {
       this.gridApi.sizeColumnsToFit()
 
       this.setFilterOptions(correctOptions)
+    },
+    handleReceiveTimeout () {
+      this.$toast.warning(`Not all rows were loaded. Please use more precise filtering`, {
+        position: "top-right",
+      });
+      setTimeout(this.$toast.clear, 3000);
     },
     openExamineLog (row) {
       const selectedRow = row.data
