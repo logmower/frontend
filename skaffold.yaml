@@ -1,11 +1,11 @@
 apiVersion: skaffold/v3alpha1
 kind: Config
 metadata:
-  name: log-viewer-backend
+  name: logmower-frontend
 
 build:
   artifacts:
-  - image: harbor.k-space.ee/playground/log-viewer-frontend
+  - image: harbor.codemowers.eu/eaas/logmower-frontend
     docker:
       dockerfile: Dockerfile
 
@@ -22,7 +22,7 @@ profiles:
       - command: dev
     build:
       artifacts:
-        - image: harbor.k-space.ee/playground/log-viewer-frontend
+        - image: harbor.codemowers.eu/eaas/logmower-frontend
           docker:
             target: dev
           sync:
