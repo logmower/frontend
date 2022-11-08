@@ -33,7 +33,8 @@ const store = createStore({
     },
     TOGGLE_FILTER_QUERY_STREAMING(state) {
       let query = state.filterQuery
-      query['streaming'] = !(query['streaming'] ?? false)
+      query['streaming'] = (query['streaming'] === undefined) ? false : query['streaming']
+      query['streaming'] = !(query['streaming'])
       state.filterQuery = query
     },
   },
