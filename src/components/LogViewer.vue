@@ -71,7 +71,9 @@ export default {
   },
   created() {
     // TODO: monitor actual URL.
-    this.setFilterQuery({})
+    this.setFilterQuery({
+      'initial': 'true'
+    })
   },
   methods: {
     ...mapActions({
@@ -85,11 +87,13 @@ export default {
       for (const key in this.filterQuery) {
         url.searchParams.append(key, this.filterQuery[key]);
       }
-      let es = new EventSource(url.toString());
-      es.onmessage = (e) => this.handleReceiveMessage(e)
-      es.addEventListener("filters", (e) => this.handleReceiveFilters(e))
-      es.addEventListener("timeout", (e) => this.handleReceiveTimeout(e))
-      this.es = es
+      if (url.searchParams.keys().next()) {
+        let es = new EventSource(url.toString());
+        es.onmessage = (e) => this.handleReceiveMessage(e)
+        es.addEventListener("filters", (e) => this.handleReceiveFilters(e))
+        es.addEventListener("timeout", (e) => this.handleReceiveTimeout(e))
+        this.es = es
+      }
     },
     onGridReady(params) {
       this.gridApi = params.api;
@@ -125,6 +129,8 @@ export default {
     },
     handleReceiveMessage (event) {
       const eventData = parseEventData(event.data);
+      // TODO: Duplicate rows might be added. I don't want to seek for every row to be included, but use other ways that would never pull duplicate rows.
+      // Maybe it's still necessary to filter here, don't know yet.
       this.gridApi.applyTransactionAsync({
         add: [eventData]
       }, (res) => {

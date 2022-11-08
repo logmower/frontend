@@ -29,12 +29,17 @@ const store = createStore({
       state.filterOptions = payload
     },
     SET_FILTER_QUERY(state, payload) {
-      state.filterQuery = payload
+      let query = payload
+      if (Object.keys(state.filterOptions).length) {
+        query['initial'] = false
+      }
+      state.filterQuery = query
     },
     TOGGLE_FILTER_QUERY_STREAMING(state) {
       let query = state.filterQuery
       query['streaming'] = (query['streaming'] === undefined) ? false : query['streaming']
       query['streaming'] = !(query['streaming'])
+      query['initial'] = false
       state.filterQuery = query
     },
   },
