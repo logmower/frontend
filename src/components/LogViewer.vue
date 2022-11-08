@@ -125,11 +125,12 @@ export default {
     },
     handleReceiveMessage (event) {
       const eventData = parseEventData(event.data);
-      const res = this.gridApi.applyTransaction({
+      this.gridApi.applyTransactionAsync({
         add: [eventData]
-      });
-      const rowNode = res.add[0]
-      this.gridApi.flashCells({ rowNodes: [rowNode]});
+      }, (res) => {
+        const rowNode = res.add[0]
+        this.gridApi.flashCells({ rowNodes: [rowNode]});
+      })
     },
     handleReceiveFilters (event) {
       let data = parseEventData(event.data);

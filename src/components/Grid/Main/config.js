@@ -1,6 +1,7 @@
 import ComboboxFilter from "../../Filter/ComboboxFilter";
 
 const config = {
+    getRowId: params => params.data._id,
     defaultColDef: {
         width: 120,
         initialPinned: true,
