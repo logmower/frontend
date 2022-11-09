@@ -14,6 +14,7 @@
       @grid-ready="onGridReady"
       :defaultColDef="defaultColDef"
       :columnDefs="columnDefs"
+      :getRowId="params => params.data._id"
       :pagination="true"
       :paginationAutoPageSize=true
       :row-data="null"
@@ -146,14 +147,14 @@ export default {
     },
     handleReceiveMessage (event) {
       const eventData = parseEventData(event.data);
-      // TODO: Duplicate rows might be added. I don't want to seek for every row to be included, but use other ways that would never pull duplicate rows.
-      // Maybe it's still necessary to filter here, don't know yet.
-      this.gridApi.applyTransactionAsync({
-        add: [eventData]
-      }, (res) => {
-        const rowNode = res.add[0]
-        this.gridApi.flashCells({ rowNodes: [rowNode]});
-      })
+      if (!this.gridApi.getRowNode(eventData._id)) {
+        this.gridApi.applyTransactionAsync({
+          add: [eventData]
+        }, (res) => {
+          const rowNode = res.add[0]
+          this.gridApi.flashCells({ rowNodes: [rowNode]});
+        })
+      }
     },
     handleReceiveFilters (event) {
       let data = parseEventData(event.data);
