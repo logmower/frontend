@@ -52,7 +52,7 @@ const config = {
             width: 500,
         },
         {
-            field: 'stream',
+            field: 'level',
         },
     ],
 }

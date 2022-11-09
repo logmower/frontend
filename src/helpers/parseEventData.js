@@ -12,6 +12,15 @@ const parseEventData = (eventData) => {
         if (message) {
             json.message = message
         }
+        let level;
+        if (json.log && json.log.level) {
+            level = json.log.level
+        } else if (json.stream) {
+            level = json.stream === 'stderr' ? 'error' : 'info'
+        }
+        if (level) {
+            json.level = level
+        }
         return json
     } catch (e) {
         console.error(e, eventData)
