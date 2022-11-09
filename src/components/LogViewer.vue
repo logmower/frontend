@@ -34,6 +34,7 @@ import "ag-grid-community/styles//ag-theme-material.css";
 import { VBtn } from 'vuetify/components/VBtn'
 import ExamineLogModal from "./Modal/ExamineLogModal.vue";
 import ComboboxFilter from "./Filter/ComboboxFilter.js";
+import ErrLevelRenderer from "./Grid/Main/ErrLevelRenderer";
 import flattenObj from "../helpers/flattenObj";
 import parseEventData from "../helpers/parseEventData";
 import {mapActions, mapGetters} from 'vuex';
@@ -44,6 +45,7 @@ export default {
     ExamineLogModal,
     AgGridVue,
     ComboboxFilter,
+    ErrLevelRenderer,
     VBtn
   },
   data() {

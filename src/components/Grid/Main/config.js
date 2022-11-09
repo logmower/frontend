@@ -53,6 +53,7 @@ const config = {
         },
         {
             field: 'level',
+            cellRenderer: 'ErrLevelRenderer',
         },
     ],
 }
