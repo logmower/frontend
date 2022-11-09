@@ -53,6 +53,7 @@ export default {
       gridColumnApi: null,
       comboBoxOptions: {},
       es: null,
+      initialFilter: null,
     }
   },
   computed: {
@@ -70,10 +71,11 @@ export default {
     },
   },
   created() {
-    // TODO: monitor actual URL.
-    this.setFilterQuery({
-      'initial': 'true'
-    })
+    let queryParams = new URLSearchParams(window.location.search);
+    queryParams = Object.fromEntries(queryParams);
+    this.initialFilter = queryParams
+    queryParams['initial'] = true
+    this.setFilterQuery(queryParams)
   },
   methods: {
     ...mapActions({
@@ -94,6 +96,11 @@ export default {
         es.addEventListener("timeout", (e) => this.handleReceiveTimeout(e))
         this.es = es
       }
+      url.searchParams.delete('initial')
+      if (url.searchParams.get('streaming') === 'false') {
+        url.searchParams.delete('streaming')
+      }
+      window.history.replaceState({}, '', `${location.pathname}?${url.searchParams.toString()}`);
     },
     onGridReady(params) {
       this.gridApi = params.api;
@@ -104,6 +111,16 @@ export default {
             sort: 'desc'
           }]
       });
+
+      for (let k in this.initialFilter) {
+        let filterInstance = params.api.getFilterInstance(k);
+        if (filterInstance) {
+          filterInstance.updateFilter(this.initialFilter[k]);
+        }
+      }
+      params.api.onFilterChanged();
+      this.initialFilter = null
+
       this.gridApi.addGlobalListener((type, event) => {
         if (type === 'filterChanged') {
           let changedColumn = event.columns[0] ? (event.columns[0].colId) : null
