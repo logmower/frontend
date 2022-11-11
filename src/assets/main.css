@@ -17,3 +17,11 @@ div#app {
   width: 300px;
   height: 390px;
 }
+
+.app-title {
+  font-family: 'Montserrat';
+}
+
+.vc-container {
+  font-family: 'Roboto' !important;
+}
