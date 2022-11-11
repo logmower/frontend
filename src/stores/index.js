@@ -23,6 +23,13 @@ const store = createStore({
     toggleFilterQueryStreaming(context) {
       context.commit("TOGGLE_FILTER_QUERY_STREAMING");
     },
+    setFilterQueryTimeRange({commit, state}, {from, to}) {
+      let query = state.filterQuery
+      query.from = from
+      query.to = to
+      query.streaming = false
+      commit("SET_FILTER_QUERY", query);
+    },
   },
   mutations: {
     SET_FILTER_OPTIONS(state, payload) {
@@ -37,9 +44,15 @@ const store = createStore({
     },
     TOGGLE_FILTER_QUERY_STREAMING(state) {
       let query = state.filterQuery
-      query['streaming'] = (query['streaming'] === undefined) ? false : query['streaming']
-      query['streaming'] = !(query['streaming'])
+      let streaming = (query['streaming'] === undefined) ? false : query['streaming']
+      query['streaming'] = !(streaming)
       query['initial'] = false
+
+      if (!streaming) {
+        delete query['from']
+        delete query['to']
+      }
+
       state.filterQuery = query
     },
   },

@@ -1,14 +1,24 @@
 <template>
-  <div style="height: 100%; width: 100%; text-align: right">
-      <v-btn
-          color="blue-grey"
-          class="ma-2"
-          :prepend-icon="streaming ? 'mdi-pause' :'mdi-play'"
-          @click="toggleFilterQueryStreaming"
-      >
-        Stream new lines
-      </v-btn>
-  <ag-grid-vue
+  <div style="height: 100%; width: 100%;">
+   <v-row no-gutters>
+     <v-col cols="12" sm="4" class="d-flex justify-start flex-wrap">
+       <Datepicker class="ma-2" :refresh="refreshFilterState" />
+     </v-col>
+     <v-col cols="12" sm="4" class="d-flex justify-center flex-wrap">
+       <h1 class="app-title"> Logmower </h1>
+     </v-col>
+     <v-col cols="12" sm="4" class="d-flex justify-end flex-wrap">
+       <v-btn
+           color="blue-grey"
+           class="ma-2"
+           :prepend-icon="streaming ? 'mdi-pause' :'mdi-play'"
+           @click="toggleFilterQueryStreaming"
+       >
+         Stream new lines
+       </v-btn>
+     </v-col>
+    </v-row>
+    <ag-grid-vue
       style="width: 100%; height: calc(100% - 52px);"
       class="ag-theme-material"
       @grid-ready="onGridReady"
@@ -22,6 +32,8 @@
       :onRowSelected="openExamineLog"
       :supress-horisontal-scroll="true"
       :enable-scrolling="true"
+      :isExternalFilterPresent="() => {return true}"
+      :doesExternalFilterPass="doesExternalFilterPass"
     ></ag-grid-vue>
     <ExamineLogModal :examine-log-content="examineLogContent" :close-modal="closeExamineLog" />
   </div>
@@ -32,6 +44,7 @@ import { AgGridVue } from "ag-grid-vue3";
 import "ag-grid-community/styles//ag-grid.css";
 import "ag-grid-community/styles//ag-theme-material.css";
 import { VBtn } from 'vuetify/components/VBtn'
+import { VRow, VCol } from 'vuetify/components/VGrid'
 import ExamineLogModal from "./Modal/ExamineLogModal.vue";
 import ComboboxFilter from "./Grid/Main/Filter/ComboboxFilter.js";
 import ErrLevelRenderer from "./Grid/Main/ErrLevelRenderer";
@@ -39,14 +52,18 @@ import flattenObj from "../helpers/flattenObj";
 import parseEventData from "../helpers/parseEventData";
 import {mapActions, mapGetters} from 'vuex';
 import config from "./Grid/Main/config";
+import Datepicker from "./Grid/Main/Filter/Datepicker.vue";
 
 export default {
   components: {
+    Datepicker,
     ExamineLogModal,
     AgGridVue,
     ComboboxFilter,
     ErrLevelRenderer,
-    VBtn
+    VBtn,
+    VRow,
+    VCol
   },
   data() {
     return {
@@ -62,7 +79,7 @@ export default {
   computed: {
     ...mapGetters([
       'filterQuery',
-      'streaming',
+      'streaming'
     ]),
   },
   watch: {
@@ -78,6 +95,8 @@ export default {
     queryParams = Object.fromEntries(queryParams);
     this.initialFilter = queryParams
     queryParams['initial'] = true
+    queryParams['from'] && (queryParams['from'] = Number(queryParams['from']))
+    queryParams['to'] && (queryParams['to'] = Number(queryParams['to']))
     this.setFilterQuery(queryParams)
   },
   methods: {
@@ -86,6 +105,9 @@ export default {
       setFilterQuery: 'setFilterQuery',
       toggleFilterQueryStreaming: 'toggleFilterQueryStreaming',
     }),
+    refreshFilterState() {
+      this.gridApi.onFilterChanged();
+    },
     setupStream() {
       this.es && this.es.close();
       let url = new URL('/events', window.location.href);
@@ -143,6 +165,8 @@ export default {
             }
           })
           query['streaming'] = this.streaming
+          this.filterQuery.from && (query['from'] = this.filterQuery.from)
+          this.filterQuery.to && (query['to'] = this.filterQuery.to)
           this.setFilterQuery(query)
         }
       });
@@ -202,6 +226,13 @@ export default {
         position: "top-right",
       });
       setTimeout(this.$toast.clear, 3000);
+    },
+    doesExternalFilterPass(node) {
+      if (node.data && this.filterQuery.from && this.filterQuery.to) {
+        let ts = new Date(node.data['@timestamp']).getTime()
+        return (ts >= this.filterQuery.from && ts <= this.filterQuery.to)
+      }
+      return true;
     },
     openExamineLog (row) {
       const selectedRow = row.data
