@@ -1,5 +1,5 @@
 <template>
-  <div style="height: 100%; width: 100%;">
+  <div style="height: 100%; width: 100%;" v-resize="onResize">
    <v-row no-gutters>
      <v-col cols="12" sm="5" class="d-flex justify-start flex-wrap">
        <Datepicker class="ma-2" :refresh="refreshFilterState" />
@@ -45,6 +45,7 @@ import "ag-grid-community/styles//ag-grid.css";
 import "ag-grid-community/styles//ag-theme-material.css";
 import { VBtn } from 'vuetify/components/VBtn'
 import { VRow, VCol } from 'vuetify/components/VGrid'
+import { Resize } from 'vuetify/directives';
 import ExamineLogModal from "./Modal/ExamineLogModal.vue";
 import ComboboxFilter from "./Grid/Main/Filter/ComboboxFilter.js";
 import ErrLevelRenderer from "./Grid/Main/ErrLevelRenderer";
@@ -64,6 +65,9 @@ export default {
     VBtn,
     VRow,
     VCol
+  },
+  directives: {
+    Resize
   },
   data() {
     return {
@@ -105,6 +109,11 @@ export default {
       setFilterQuery: 'setFilterQuery',
       toggleFilterQueryStreaming: 'toggleFilterQueryStreaming',
     }),
+    onResize () {
+      if (this.gridApi) {
+        this.gridApi.sizeColumnsToFit()
+      }
+    },
     refreshFilterState() {
       this.gridApi.onFilterChanged();
     },
