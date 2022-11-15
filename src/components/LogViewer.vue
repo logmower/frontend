@@ -34,6 +34,7 @@
       :enable-scrolling="true"
       :isExternalFilterPresent="() => {return true}"
       :doesExternalFilterPass="doesExternalFilterPass"
+      :loadingOverlayComponent="'loadingOverlay'"
     ></ag-grid-vue>
     <ExamineLogModal :examine-log-content="examineLogContent" :close-modal="closeExamineLog" />
   </div>
@@ -54,6 +55,7 @@ import parseEventData from "../helpers/parseEventData";
 import {mapActions, mapGetters} from 'vuex';
 import config from "./Grid/Main/config";
 import Datepicker from "./Grid/Main/Filter/Datepicker.vue";
+import loadingOverlay from "./Grid/Main/loadingOverlay";
 
 export default {
   components: {
@@ -64,7 +66,8 @@ export default {
     ErrLevelRenderer,
     VBtn,
     VRow,
-    VCol
+    VCol,
+    loadingOverlay
   },
   directives: {
     Resize
@@ -128,7 +131,11 @@ export default {
         es.onmessage = (e) => this.handleReceiveMessage(e)
         es.addEventListener("filters", (e) => this.handleReceiveFilters(e))
         es.addEventListener("timeout", (e) => this.handleReceiveTimeout(e))
+        es.addEventListener("completed", (e) => this.handleAllReceived(e))
         this.es = es
+        if (this.gridApi) {
+          this.gridApi.showLoadingOverlay();
+        }
       }
       url.searchParams.delete('initial')
       if (url.searchParams.get('streaming') === 'false') {
@@ -235,6 +242,10 @@ export default {
         position: "top-right",
       });
       setTimeout(this.$toast.clear, 3000);
+      this.gridApi.hideOverlay();
+    },
+    handleAllReceived () {
+      this.gridApi.hideOverlay();
     },
     doesExternalFilterPass(node) {
       if (node.data && this.filterQuery.from && this.filterQuery.to) {

@@ -29,3 +29,10 @@ div#app {
 :root {
   --vs-font-size: 1em!important;
 }
+
+.ag-overlay-panel {
+  display: flex;
+  width: 100%;
+  height: calc(100% - 56px);
+  margin-top: 56px;
+}
