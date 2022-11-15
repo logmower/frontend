@@ -3,6 +3,7 @@
       v-model="examineLog"
       width="50wv"
       @click.outside="close"
+      transition="false"
   >
     <v-card>
       <v-card-text style="height: 70vh">
@@ -20,7 +21,7 @@
           ></ag-grid-vue>
       </v-card-text>
       <v-card-actions>
-        <v-btn color="primary" block @click="closeModal">Close</v-btn>
+        <v-btn color="primary" block @click="closeModal" transition="false">Close</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
