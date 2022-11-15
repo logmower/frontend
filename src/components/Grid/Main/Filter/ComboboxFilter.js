@@ -7,9 +7,10 @@ export default {
       Combobox
     },
     template: `<Combobox
-      :field="params.field"
-      :filter="filter"
-      :change-value="updateFilter"
+        :field="params.field"
+        :filter="filter"
+        :change-value="updateFilter"
+        :placeholder="placeholder"
     />`,
     mounted() {
         this.params.api.sizeColumnsToFit()
@@ -18,6 +19,19 @@ export default {
         return {
             filter: '',
         };
+    },
+    computed: {
+      placeholder() {
+          let parentColumnName = this.params.column.userProvidedColDef.filterParams.parentColumn
+          if (parentColumnName) {
+              let filterInstance = this.params.api.getFilterInstance(parentColumnName)
+              if (!filterInstance.filter || filterInstance.filter === '') {
+                  let displayName = filterInstance.params.column.userProvidedColDef.headerName
+                  return `Please select ${displayName} first`
+              }
+          }
+          return ''
+      }
     },
     methods: {
         updateFilter(value) {

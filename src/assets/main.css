@@ -25,3 +25,7 @@ div#app {
 .vc-container {
   font-family: 'Roboto' !important;
 }
+
+:root {
+  --vs-font-size: 1em!important;
+}

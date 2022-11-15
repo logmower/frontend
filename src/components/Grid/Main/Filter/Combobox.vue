@@ -2,6 +2,7 @@
   <v-select
       v-model="filterValue"
       :options="options"
+      :placeholder="placeholder"
       @open="updateOptions"
   ></v-select>
 </template>
@@ -20,7 +21,9 @@ export default {
     changeValue: {
     },
     filter: {
-    }
+    },
+    placeholder: {
+    },
   },
   data() {
     return {
