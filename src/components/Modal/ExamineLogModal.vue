@@ -2,7 +2,7 @@
   <v-dialog
       v-model="examineLog"
       width="50wv"
-      @click.outside="closeModal"
+      @click.outside="close"
   >
     <v-card>
       <v-card-text style="height: 70vh">
@@ -16,7 +16,8 @@
             :enable-scrolling="true"
             :enableCellTextSelection="true"
             :ensureDomOrder="true"
-        ></ag-grid-vue>
+            @cell-clicked="copyText"
+          ></ag-grid-vue>
       </v-card-text>
       <v-card-actions>
         <v-btn color="primary" block @click="closeModal">Close</v-btn>
@@ -78,6 +79,18 @@ export default {
     onGridReady(params) {
       params.api.sizeColumnsToFit()
     },
+    close (e) {
+      if (e.target.className !== "ag-cell-value") {
+        this.closeModal()
+      }
+    },
+    copyText(e) {
+      navigator.clipboard.writeText(e.value);
+      this.$toast.success(`Value copied to clipboard`, {
+        position: "top-right",
+      });
+      setTimeout(this.$toast.clear, 3000);
+    }
   }
 }
 
