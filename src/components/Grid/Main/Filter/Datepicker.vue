@@ -1,14 +1,14 @@
 <template>
   <v-date-picker mode="dateTime" v-model="dateRange" locale="et" :is24hr="true" is-range timezone="UTC">
     <template v-slot="{ inputValue, inputEvents }">
-      <div class="flex justify-center items-center">
+      <div class="flex justify-center items-center align-center">
         <input
             :value="inputValue.start"
             v-on="inputEvents.start"
             class="border px-2 py-1 w-32 rounded focus:outline-none focus:border-indigo-300"
         />
         <svg
-            class="w-4 h-4 mx-2"
+            class="mx-2"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -26,6 +26,7 @@
             v-on="inputEvents.end"
             class="border px-2 py-1 w-32 rounded focus:outline-none focus:border-indigo-300"
         />
+        <v-icon class="ml-2" @click="clearDates">mdi-close</v-icon>
       </div>
     </template>
   </v-date-picker>
@@ -34,9 +35,16 @@
 
 <script>
 import {mapActions, mapGetters} from "vuex";
+import { VIcon } from 'vuetify/components/VIcon'
+import { VBtn } from 'vuetify/components/VBtn'
+
 
 export default {
   name: "Datepicker",
+  components: {
+    VIcon,
+    VBtn
+  },
   props: {
     refresh: {}
   },
@@ -72,6 +80,13 @@ export default {
     ...mapActions({
       setFilterQueryTimeRange: 'setFilterQueryTimeRange',
     }),
+    clearDates () {
+      this.setFilterQueryTimeRange({
+        from: null,
+        to: null,
+      })
+      this.refresh()
+    }
   }
 }
 </script>

@@ -1,13 +1,13 @@
 <template>
   <div style="height: 100%; width: 100%;">
    <v-row no-gutters>
-     <v-col cols="12" sm="4" class="d-flex justify-start flex-wrap">
+     <v-col cols="12" sm="5" class="d-flex justify-start flex-wrap">
        <Datepicker class="ma-2" :refresh="refreshFilterState" />
      </v-col>
-     <v-col cols="12" sm="4" class="d-flex justify-center flex-wrap">
+     <v-col cols="12" sm="2" class="d-flex justify-center flex-wrap">
        <h1 class="app-title"> Logmower </h1>
      </v-col>
-     <v-col cols="12" sm="4" class="d-flex justify-end flex-wrap">
+     <v-col cols="12" sm="5" class="d-flex justify-end flex-wrap">
        <v-btn
            color="blue-grey"
            class="ma-2"
