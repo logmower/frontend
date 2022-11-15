@@ -11,6 +11,9 @@ export default {
       :filter="filter"
       :change-value="updateFilter"
     />`,
+    mounted() {
+        this.params.api.sizeColumnsToFit()
+    },
     data: function () {
         return {
             filter: '',
