@@ -2,6 +2,7 @@
   <v-dialog
       v-model="examineLog"
       width="50wv"
+      @click.outside="closeModal"
   >
     <v-card>
       <v-card-text style="height: 70vh">
@@ -52,7 +53,8 @@ export default {
           field: 'key',
           sortable: true,
           filter: 'agTextColumnFilter',
-          resizable: true
+          resizable: true,
+          width: 10,
         },
         {
           field: 'value',
