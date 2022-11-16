@@ -49,7 +49,7 @@ import { VRow, VCol } from 'vuetify/components/VGrid'
 import { Resize } from 'vuetify/directives';
 import ExamineLogModal from "./Modal/ExamineLogModal.vue";
 import ComboboxFilter from "./Grid/Main/Filter/ComboboxFilter.js";
-import ErrLevelRenderer from "./Grid/Main/ErrLevelRenderer";
+import MessageWithLevelRenderer from "./Grid/Main/MessageWithLevelRenderer";
 import flattenObj from "../helpers/flattenObj";
 import parseEventData from "../helpers/parseEventData";
 import {mapActions, mapGetters} from 'vuex';
@@ -63,7 +63,7 @@ export default {
     ExamineLogModal,
     AgGridVue,
     ComboboxFilter,
-    ErrLevelRenderer,
+    MessageWithLevelRenderer,
     VBtn,
     VRow,
     VCol,

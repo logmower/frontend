@@ -49,11 +49,8 @@ const config = {
         {
             field: 'message',
             tooltipValueGetter: (params) => params.value,
+            cellRenderer: 'MessageWithLevelRenderer',
             width: 500,
-        },
-        {
-            field: 'level',
-            cellRenderer: 'ErrLevelRenderer',
         },
     ],
 }
