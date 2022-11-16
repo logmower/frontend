@@ -1,6 +1,7 @@
 div#app {
   width: 100%;
   height: 100vh;
+  font-family: 'Roboto Mono';
 }
 
 .screenshots-drawer {
@@ -23,7 +24,7 @@ div#app {
 }
 
 .vc-container {
-  font-family: 'Roboto' !important;
+  font-family: 'Roboto Mono' !important;
 }
 
 :root {
@@ -35,4 +36,12 @@ div#app {
   width: 100%;
   height: calc(100% - 56px);
   margin-top: 56px;
+}
+
+.ag-theme-material {
+  --ag-font-family: 'Roboto Mono'!important;
+}
+
+.v--default-css .c-toast {
+  font-family: 'Roboto Mono'!important;
 }

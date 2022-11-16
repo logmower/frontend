@@ -10,7 +10,7 @@ export async function loadFonts () {
   webFontLoader.load({
     google: {
       families: [
-          'Montserrat', 'Roboto',
+          'Montserrat', 'Roboto Mono',
       ],
     },
   })
