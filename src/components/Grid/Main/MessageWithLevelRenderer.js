@@ -1,11 +1,14 @@
 import { VRow, VCol } from 'vuetify/components/VGrid'
 import { VIcon } from 'vuetify/components/VIcon'
+import 'ansi-to-html'
+import Convert from "ansi-to-html";
+
 
 export default {
     template: `<v-row>
       <v-col>
-        <v-icon :color="color" class="mr-2">{{ icon }}</v-icon>
-        {{ message }}
+        <v-icon v-if="icon" :color="color" class="mr-2">{{ icon }}</v-icon>
+        <span v-html="message"></span>
       </v-col>
     </v-row>`,
     components: {
@@ -14,7 +17,9 @@ export default {
         VIcon
     },
     setup(props) {
-        let message = props.params.data.message
+        let message = props.params.value
+        let converter = new Convert()
+        message = converter.toHtml(message)
         let level = props.params.data.level
         let icons = {
             'emergency': 'mdi-alert-circle',
@@ -36,8 +41,8 @@ export default {
             'info': 'green',
             'debug': 'green',
         }
-        let color = colors[level]
-        let icon = icons[level]
+        let color = colors[level] ?? null
+        let icon = icons[level] ?? null
         return {
             message,
             color,

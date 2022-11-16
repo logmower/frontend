@@ -35,7 +35,7 @@ import { VCard, VCardText, VCardActions } from 'vuetify/components/VCard'
 import { VDialog } from 'vuetify/components/VDialog'
 import { VBtn } from 'vuetify/components/VBtn'
 import { VTable } from 'vuetify/components/VTable'
-
+import ValueRenderer from "./ValueRenderer";
 
 export default {
   name: "ExamineLogModal",
@@ -46,7 +46,8 @@ export default {
     VCardActions,
     VBtn,
     VDialog,
-    VTable
+    VTable,
+    ValueRenderer
   },
   data() {
     return {
@@ -62,7 +63,8 @@ export default {
           field: 'value',
           sortable: true,
           filter: 'agTextColumnFilter',
-          resizable: true
+          resizable: true,
+          cellRenderer: 'ValueRenderer'
         },
       ]
     }
