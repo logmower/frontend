@@ -83,7 +83,7 @@ export default {
       params.api.sizeColumnsToFit()
     },
     close (e) {
-      if (e.target.className !== "ag-cell-value") {
+      if (e.target.className === "v-overlay__scrim") {
         this.closeModal()
       }
     },
