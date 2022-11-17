@@ -1,23 +1,6 @@
 <template>
   <div style="height: 100%; width: 100%;" v-resize="onResize">
-   <v-row no-gutters>
-     <v-col cols="12" sm="5" class="d-flex justify-start flex-wrap">
-       <Datepicker class="ma-2" :refresh="refreshFilterState" />
-     </v-col>
-     <v-col cols="12" sm="2" class="d-flex justify-center flex-wrap">
-       <h1 class="app-title"> Logmower </h1>
-     </v-col>
-     <v-col cols="12" sm="5" class="d-flex justify-end flex-wrap">
-       <v-btn
-           color="blue-grey"
-           class="ma-2"
-           :prepend-icon="streaming ? 'mdi-pause' :'mdi-play'"
-           @click="toggleFilterQueryStreaming"
-       >
-         Stream new lines
-       </v-btn>
-     </v-col>
-    </v-row>
+    <Header :refresh-filter-state="refreshFilterState" @setup-stream="setupStream" />
     <ag-grid-vue
       style="width: 100%; height: calc(100% - 52px);"
       class="ag-theme-material"
@@ -44,8 +27,6 @@
 import { AgGridVue } from "ag-grid-vue3";
 import "ag-grid-community/styles//ag-grid.css";
 import "ag-grid-community/styles//ag-theme-material.css";
-import { VBtn } from 'vuetify/components/VBtn'
-import { VRow, VCol } from 'vuetify/components/VGrid'
 import { Resize } from 'vuetify/directives';
 import ExamineLogModal from "./Modal/ExamineLogModal.vue";
 import ComboboxFilter from "./Grid/Main/Filter/ComboboxFilter.js";
@@ -54,19 +35,16 @@ import flattenObj from "../helpers/flattenObj";
 import parseEventData from "../helpers/parseEventData";
 import {mapActions, mapGetters} from 'vuex';
 import config from "./Grid/Main/config";
-import Datepicker from "./Grid/Main/Filter/Datepicker.vue";
 import loadingOverlay from "./Grid/Main/loadingOverlay";
+import Header from "./Header/Header.vue";
 
 export default {
   components: {
-    Datepicker,
+    Header,
     ExamineLogModal,
     AgGridVue,
     ComboboxFilter,
     MessageWithLevelRenderer,
-    VBtn,
-    VRow,
-    VCol,
     loadingOverlay
   },
   directives: {
@@ -110,7 +88,7 @@ export default {
     ...mapActions({
       setFilterOptions: 'setFilterOptions',
       setFilterQuery: 'setFilterQuery',
-      toggleFilterQueryStreaming: 'toggleFilterQueryStreaming',
+      setLastPingReceived: 'setLastPingReceived',
     }),
     onResize () {
       if (this.gridApi) {
@@ -129,6 +107,7 @@ export default {
       if (url.searchParams.keys().next()) {
         let es = new EventSource(url.toString());
         es.onmessage = (e) => this.handleReceiveMessage(e)
+        es.addEventListener("ping", (e) => this.handleReceivePing())
         es.addEventListener("filters", (e) => this.handleReceiveFilters(e))
         es.addEventListener("timeout", (e) => this.handleReceiveTimeout(e))
         es.addEventListener("completed", (e) => this.handleAllReceived(e))
@@ -246,6 +225,9 @@ export default {
     },
     handleAllReceived () {
       this.gridApi.hideOverlay();
+    },
+    handleReceivePing () {
+      this.setLastPingReceived()
     },
     doesExternalFilterPass(node) {
       if (node.data && this.filterQuery.from && this.filterQuery.to) {

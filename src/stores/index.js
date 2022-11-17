@@ -4,6 +4,7 @@ const store = createStore({
   state: {
     filterOptions: {},
     filterQuery: {},
+    lastPingReceived: null,
   },
   getters: {
     streaming (state) {
@@ -11,7 +12,10 @@ const store = createStore({
     },
     filterQuery (state) {
       return state.filterQuery
-    }
+    },
+    lastPingReceived (state) {
+      return state.lastPingReceived
+    },
   },
   actions: {
     setFilterOptions(context, payload) {
@@ -29,6 +33,9 @@ const store = createStore({
       query.to = to
       query.streaming = false
       commit("SET_FILTER_QUERY", query);
+    },
+    setLastPingReceived(context) {
+      context.commit("SET_LAST_PING_RECEIVED");
     },
   },
   mutations: {
@@ -55,6 +62,9 @@ const store = createStore({
 
       state.filterQuery = query
     },
+    SET_LAST_PING_RECEIVED(state) {
+      state.lastPingReceived = (new Date()).getTime()
+    }
   },
 });
 

@@ -22,5 +22,10 @@ export default {
     vuetify: {
       // https://github.com/vuetifyjs/vuetify-loader/tree/next/packages/vuetify-loader
     }
-  }
+  },
+  optimizeDeps: {
+    exclude: [
+      "@meforma/vue-toaster"
+    ]
+  },
 }
