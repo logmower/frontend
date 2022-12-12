@@ -4,7 +4,7 @@
       <Datepicker class="ma-2" :refresh="refreshFilterState" />
     </v-col>
     <v-col cols="12" sm="2" class="d-flex justify-center flex-wrap">
-      <h1 class="app-title"> Logmower </h1>
+      <h1 class="app-title"> {{ title }} </h1>
     </v-col>
     <v-col cols="12" sm="5" class="d-flex justify-end flex-wrap align-center">
       <ConnectionMonitor @setup-stream="setupStream" />
@@ -35,7 +35,8 @@ export default {
     VBtn
   },
   props: {
-    refreshFilterState: Function
+    refreshFilterState: Function,
+    title: String
   },
   computed: {
     ...mapGetters([

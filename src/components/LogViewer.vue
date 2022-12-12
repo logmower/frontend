@@ -1,6 +1,6 @@
 <template>
   <div style="height: 100%; width: 100%;" v-resize="onResize">
-    <Header :refresh-filter-state="refreshFilterState" @setup-stream="setupStream" />
+    <Header :refresh-filter-state="refreshFilterState" :title="backend" @setup-stream="setupStream" />
     <ag-grid-vue
       v-if="columnDefs"
       style="width: 100%; height: calc(100% - 52px);"
