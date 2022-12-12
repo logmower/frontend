@@ -1,4 +1,4 @@
-import ComboboxFilter from "./Filter/ComboboxFilter";
+import ComboboxFilter from "../Filter/ComboboxFilter";
 
 const config = {
     defaultColDef: {

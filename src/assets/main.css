@@ -5,9 +5,12 @@ div#app {
 }
 
 .screenshots-drawer {
-  position: fixed;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+}
+
+.screenshots-drawer img {
+  margin-right: 0;
 }
 
 .ag-theme-material {
@@ -21,6 +24,7 @@ div#app {
 
 .app-title {
   font-family: 'Montserrat';
+  text-transform: capitalize;
 }
 
 .vc-container {

@@ -2,6 +2,7 @@
   <div style="height: 100%; width: 100%;" v-resize="onResize">
     <Header :refresh-filter-state="refreshFilterState" @setup-stream="setupStream" />
     <ag-grid-vue
+      v-if="columnDefs"
       style="width: 100%; height: calc(100% - 52px);"
       class="ag-theme-material"
       @grid-ready="onGridReady"
@@ -19,7 +20,8 @@
       :doesExternalFilterPass="doesExternalFilterPass"
       :loadingOverlayComponent="'loadingOverlay'"
     ></ag-grid-vue>
-    <ExamineLogModal :examine-log-content="examineLogContent" :close-modal="closeExamineLog" />
+    <ExamineLogModal v-if="backend === 'logmower'" :examine-log-content="examineLogContent" :close-modal="closeExamineLog" />
+    <ExamineCamModal v-if="backend === 'camtiler'" :examine-log-content="examineLogContent" :close-modal="closeExamineLog" />
   </div>
 </template>
 
@@ -29,22 +31,25 @@ import "ag-grid-community/styles//ag-grid.css";
 import "ag-grid-community/styles//ag-theme-material.css";
 import { Resize } from 'vuetify/directives';
 import ExamineLogModal from "./Modal/ExamineLogModal.vue";
+import ExamineCamModal from "./Modal/ExamineCamModal.vue";
 import ComboboxFilter from "./Grid/Main/Filter/ComboboxFilter.js";
 import MessageWithLevelRenderer from "./Grid/Main/MessageWithLevelRenderer";
+import ScreenshotRenderer from "./Grid/Main/ScreenshotRenderer";
 import flattenObj from "../helpers/flattenObj";
 import parseEventData from "../helpers/parseEventData";
 import {mapActions, mapGetters} from 'vuex';
-import config from "./Grid/Main/config";
 import loadingOverlay from "./Grid/Main/loadingOverlay";
 import Header from "./Header/Header.vue";
 
 export default {
   components: {
     Header,
-    ExamineLogModal,
+    ExamineLogModal, // TODO: dynamic loading
+    ExamineCamModal,
     AgGridVue,
     ComboboxFilter,
     MessageWithLevelRenderer,
+    ScreenshotRenderer,
     loadingOverlay
   },
   directives: {
@@ -53,12 +58,14 @@ export default {
   data() {
     return {
       examineLogContent: null,
-      ...config,
       gridApi: null,
       gridColumnApi: null,
       comboBoxOptions: {},
       es: null,
       initialFilter: null,
+      defaultColDef: null,
+      columnDefs: null,
+      backend: 'logmower'
     }
   },
   computed: {
@@ -69,20 +76,40 @@ export default {
   },
   watch: {
     filterQuery() {
-      this.setupStream()
+      if (this.backend) {
+        this.setupStream()
+      }
     },
     streaming() {
-      this.setupStream()
+      if (this.backend) {
+        this.setupStream()
+      }
     },
   },
   created() {
-    let queryParams = new URLSearchParams(window.location.search);
-    queryParams = Object.fromEntries(queryParams);
-    this.initialFilter = queryParams
-    queryParams['initial'] = true
-    queryParams['from'] && (queryParams['from'] = Number(queryParams['from']))
-    queryParams['to'] && (queryParams['to'] = Number(queryParams['to']))
-    this.setFilterQuery(queryParams)
+    fetch('/events/backend')
+        .then((response) => response.text())
+        .then((response) => {
+          this.backend = response
+          import( /* @vite-ignore */  './Grid/Main/configs/' + response)
+              .then(module => {
+                this.defaultColDef = module.default.defaultColDef
+                this.columnDefs = module.default.columnDefs
+              }).catch(err => {
+                console.error(err)
+                this.$toast.error(`Backend '${response}' not supported`, {
+                position: "top-right",
+            });
+          }).then(() => {
+            let queryParams = new URLSearchParams(window.location.search);
+            queryParams = Object.fromEntries(queryParams);
+            this.initialFilter = queryParams
+            queryParams['initial'] = true
+            queryParams['from'] && (queryParams['from'] = Number(queryParams['from']))
+            queryParams['to'] && (queryParams['to'] = Number(queryParams['to']))
+            this.setFilterQuery(queryParams)
+          });
+      })
   },
   methods: {
     ...mapActions({
@@ -239,7 +266,6 @@ export default {
     openExamineLog (row) {
       const selectedRow = row.data
       row.node.setSelected(false)
-      this.examineLog = true
       const flattened = flattenObj(selectedRow)
       const pairs = [];
       Object.keys(flattened).map((key) => {
