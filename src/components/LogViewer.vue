@@ -90,8 +90,8 @@ export default {
     fetch('/events/backend')
         .then((response) => response.text())
         .then((response) => {
-          this.backend = response
-          import( /* @vite-ignore */  './Grid/Main/configs/' + response)
+          this.backend = response // TODO handle bad gateway etc
+          import(`./Grid/Main/configs/${response}.js`)
               .then(module => {
                 this.defaultColDef = module.default.defaultColDef
                 this.columnDefs = module.default.columnDefs

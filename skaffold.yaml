@@ -5,7 +5,7 @@ metadata:
 
 build:
   artifacts:
-  - image: harbor.codemowers.eu/eaas/logmower-frontend
+  - image: harbor.codemowers.eu/erkiaas/logmower-frontend
     docker:
       dockerfile: Dockerfile
 
@@ -22,9 +22,9 @@ profiles:
       - command: dev
     build:
       artifacts:
-        - image: harbor.codemowers.eu/eaas/logmower-frontend
+        - image: harbor.k-space.ee/playground/logmower-frontend
           docker:
-            target: dev
+            target: prod
           sync:
             manual:
               - src: 'src/**/*.vue'
@@ -39,4 +39,4 @@ profiles:
                 dest: .
     manifests:
       rawYaml:
-        - k8s/dev/deployment.yaml
+        - k8s/dev/deployment-camtiler.yaml

@@ -1,9 +1,12 @@
 import vue from '@vitejs/plugin-vue'
+import dynamicImport from 'vite-plugin-dynamic-import'
+import * as path from "path";
 
 export default {
   resolve: {
     alias: {
-      vue: 'vue/dist/vue.esm-bundler.js'
+      vue: 'vue/dist/vue.esm-bundler.js',
+      '@': path.join(__dirname, 'src/components/Grid/Main/configs'),
     }
   },
   rollupOptions: {
@@ -11,13 +14,16 @@ export default {
     format: 'system',
     preserveEntrySignatures: true
   },
-  plugins: [vue({
-    template: {
-      transformAssetUrls: {
-        base: '/src'
-      }
-    }
-  })],
+  plugins: [
+      vue({
+        template: {
+          transformAssetUrls: {
+            base: '/src'
+          }
+        },
+      }),
+      dynamicImport(/* options */)
+  ],
   pluginOptions: {
     vuetify: {
       // https://github.com/vuetifyjs/vuetify-loader/tree/next/packages/vuetify-loader
