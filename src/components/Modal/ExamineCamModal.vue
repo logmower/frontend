@@ -111,7 +111,7 @@ export default {
         fetch('/events/details/' + id)
             .then((response) => response.json())
             .then((response) => {
-              this.screenshots = response
+              this.screenshots = response.screenshots
             });
       }
     }
