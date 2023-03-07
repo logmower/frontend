@@ -1,4 +1,4 @@
-FROM harbor.k-space.ee/docker.io/library/node AS dev
+FROM node:lts-alpine AS dev
 
 WORKDIR /app
 EXPOSE 8080
